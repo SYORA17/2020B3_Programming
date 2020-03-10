@@ -1,1 +1,1 @@
-print("Welcome to Hagiwara Lab")
+print("Welcome to Hagiwara Lab.")
