@@ -10,8 +10,9 @@ import torchvision.transforms as transforms
 from sklearn.metrics import accuracy_score
 
 import matplotlib
-matplotlib.use('Agg') # -----(1)
+matplotlib.use('Agg')  # -----(1)
 import matplotlib.pyplot as plt
+
 
 class CNN(nn.Module):
     def __init__(self):
@@ -39,13 +40,16 @@ class CNN(nn.Module):
 
         return y
 
+
 if __name__ == '__main__':
     np.random.seed(1234)
     torch.manual_seed(1234)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
     def compute_loss(label, pred):
         return criterion(pred, label)
+
 
     def train_step(x, t):
         model.train()
@@ -57,6 +61,7 @@ if __name__ == '__main__':
 
         return loss, preds
 
+
     def test_step(x, t):
         model.eval()
         preds = model(x)
@@ -64,9 +69,10 @@ if __name__ == '__main__':
 
         return loss, preds
 
+
     # load data
     root = os.path.join(os.path.dirname('__file__'), '..', 'data',
-    'mnist')
+                        'mnist')
     transform = transforms.Compose([transforms.ToTensor()])
     mnist_train = \
         torchvision.datasets.MNIST(root=root,
@@ -85,16 +91,15 @@ if __name__ == '__main__':
 
     train_dataset, val_dataset = torch.utils.data.random_split(mnist_train, [train_size, val_size])
 
-
     train_dataloader = DataLoader(train_dataset,
                                   batch_size=100,
                                   shuffle=True)
     val_dataloader = DataLoader(val_dataset,
-                                  batch_size=100,
-                                  shuffle=True)
-    test_dataloader = DataLoader(mnist_test,
                                 batch_size=100,
-                                shuffle=False)
+                                shuffle=True)
+    test_dataloader = DataLoader(mnist_test,
+                                 batch_size=100,
+                                 shuffle=False)
 
     # Build model
     model = CNN().to(device)
@@ -102,7 +107,7 @@ if __name__ == '__main__':
     optimizer = optimizers.Adam(model.parameters())
 
     # Train model
-    epochs = 10
+    epochs = 100
 
     train_loss_list = []
     val_loss_list = []
@@ -127,21 +132,20 @@ if __name__ == '__main__':
             val_acc += \
                 accuracy_score(t.tolist(), preds.argmax(dim=-1).tolist())
 
-
         val_loss /= len(val_dataloader)
         val_loss_list.append(val_loss)
         val_acc /= len(val_dataloader)
         print('Epoch: {} / {}, Valid Cost: {:3f}, Valid Acc: {:3f}'.format(
-            epoch+1,
+            epoch + 1,
             epochs,
             val_loss,
             val_acc
         ))
 
-
     # plot
-    x_axis = [i in range(epochs)]
+    x_axis = [i for i in range(epochs)]
     fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
     ax.plot(x_axis, train_loss_list, label="train loss")
     ax.plot(x_axis, val_loss_list, label="valid loss")
     ax.set_xlabel('epoch')
@@ -164,7 +168,7 @@ if __name__ == '__main__':
     test_loss /= len(test_dataloader)
     test_acc /= len(test_dataloader)
     print('Test Loss : {:3f}, Test Acc: {:3f}'.format(
-        epoch+1,
+        epoch + 1,
         test_loss,
         test_acc
     ))
